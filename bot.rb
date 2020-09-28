@@ -9,7 +9,7 @@ puts "Bot is running..."
 
 file = File.open("text.txt")
 text = file.read
-fortunes = text.split "."
+fortunes = text.split /\n|\./
 
 loop do
     begin
@@ -21,14 +21,30 @@ loop do
                         case request.text
                         when '/start'
                             puts "Client (#{request.chat.id}): /start"
-                            bot.api.send_message(chat_id: request.chat.id, text: "Привет, #{request.from.first_name}! Ты можешь узнать предсказание при помощи команды /oracle")
+                            bot.api.send_message(
+                                chat_id: request.chat.id,
+                                text: "Привет, #{request.from.first_name}! Ты можешь узнать предсказание при помощи команды /oracle"
+                            )
                         when '/oracle'
-                            fortunes.shuffle!
-                            fortune = fortunes[0]
-                            bot.api.send_message(chat_id: request.chat.id, text: "Твоё будущее: #{fortunes[0]}")
+                            puts "Client (#{request.chat.id}) asks a fortune"
+                            fortune = ""
+                            while fortune.length < 3 do
+                                fortunes.shuffle!
+                                fortune = fortunes[0].strip
+                            end
+                            puts "Fortune: #{fortune}"
+                            puts ""
+                            bot.api.send_message(
+                                chat_id: request.chat.id,
+                                parse_mode: 'markdown',
+                                text: "*Твоё будущее:*\n\n#{fortune}"
+                            )
                         when '/stop'
                             puts "Client (#{request.chat.id}): /stop"
-                            bot.api.send_message(chat_id: request.chat.id, text: "Пока. Приходи ещё!")
+                            bot.api.send_message(
+                                chat_id: request.chat.id,
+                                text: "Пока. Приходи ещё!"
+                            )
                         end
                     rescue
                         puts "The shit down cause while message parsing"
