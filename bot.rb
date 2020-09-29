@@ -3,56 +3,72 @@ require 'dotenv/load'
 
 Dotenv.load
 
-TOKEN = ENV['TELEGRAM_BOT_TOKEN']
+puts "Script starts"
 
-puts "Bot is running..."
+TOKEN = ENV['TELEGRAM_BOT_TOKEN']
 
 file = File.open("text.txt")
 text = file.read
 fortunes = text.split /\n|\./
+puts "#{fortunes.length} sentences loaded"
 
 loop do
     begin
         Telegram::Bot::Client.run(TOKEN) do |bot|
-            puts "Bot activated"
+            puts "Bot run"
             bot.listen do |request|
+                puts "Bot listen"
                 Thread.start(request) do |request|
+                    puts ""
+                    puts "Thread start"
+
+                    kb = [
+                      Telegram::Bot::Types::InlineKeyboardButton.new(text: '🧡 Предсказание 🧡', callback_data: 'oracle'),
+                    ]
+                    markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: kb)
+
                     begin
-                        case request.text
-                        when '/start'
-                            puts "Client (#{request.chat.id}): /start"
-                            bot.api.send_message(
-                                chat_id: request.chat.id,
-                                text: "Привет, #{request.from.first_name}! Ты можешь узнать предсказание при помощи команды /oracle"
-                            )
-                        when '/oracle'
-                            puts "Client (#{request.chat.id}) asks a fortune"
-                            fortune = ""
-                            while fortune.length < 3 do
-                                fortunes.shuffle!
-                                fortune = fortunes[0].strip
+                        if request.class == Telegram::Bot::Types::CallbackQuery
+                            case request.data
+                            when 'oracle'
+                                puts "Client (#{request.from.id}) asks a fortune"
+                                fortune = ""
+                                while fortune.length < 3 do
+                                    fortunes.shuffle!
+                                    fortune = fortunes[0].strip
+                                end
+                                puts "Fortune: #{fortune}"
+                                puts ""
+                                bot.api.send_message(
+                                    chat_id: request.from.id,
+                                    parse_mode: 'markdown',
+                                    text: "*Твоё будущее:*\n\n#{fortune}...",
+                                    reply_markup: markup
+                                )
                             end
-                            puts "Fortune: #{fortune}"
-                            puts ""
-                            bot.api.send_message(
-                                chat_id: request.chat.id,
-                                parse_mode: 'markdown',
-                                text: "*Твоё будущее:*\n\n#{fortune}"
-                            )
-                        when '/stop'
-                            puts "Client (#{request.chat.id}): /stop"
-                            bot.api.send_message(
-                                chat_id: request.chat.id,
-                                text: "Пока. Приходи ещё!"
-                            )
                         end
-                    rescue
-                        puts "The shit down cause while message parsing"
+
+                        if request.class == Telegram::Bot::Types::Message
+                            case request.text
+                            when '/start'
+                                puts "Client (#{request.chat.id}): /start"
+                                bot.api.send_message(
+                                    chat_id: request.chat.id,
+                                    text: "Привет, #{request.from.first_name}!\nТы можешь узнать предсказание при помощи кнопки ниже!",
+                                    reply_markup: markup
+                                )
+                            end
+                        end
+
+                    rescue => error
+                        puts error
+                        puts "The shit down while message parsing"
                     end
                 end
             end
         end
-    rescue
+    rescue => error
+        puts error
         puts "The shit down cause a api error"
     end
 end
