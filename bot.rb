@@ -1,13 +1,11 @@
 require 'telegram/bot'
 require 'dotenv/load'
 
-Dotenv.load
-
-puts "Script starts"
-
+dotenv_url = File.join(File.dirname(__FILE__), "/.env")
+Dotenv.load dotenv_url
 TOKEN = ENV['TELEGRAM_BOT_TOKEN']
 
-url = File.join(File.dirname(__FILE__), "text.txt")
+text_url = File.join(File.dirname(__FILE__), "/text.txt")
 file = File.open(url)
 text = file.read
 fortunes = text.split /\n|\./
