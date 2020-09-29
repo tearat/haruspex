@@ -7,7 +7,8 @@ puts "Script starts"
 
 TOKEN = ENV['TELEGRAM_BOT_TOKEN']
 
-file = File.open("text.txt")
+url = File.join(File.dirname(__FILE__), "text.txt")
+file = File.open(url)
 text = file.read
 fortunes = text.split /\n|\./
 puts "#{fortunes.length} sentences loaded"
