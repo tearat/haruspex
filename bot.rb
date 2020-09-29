@@ -6,7 +6,7 @@ Dotenv.load dotenv_url
 TOKEN = ENV['TELEGRAM_BOT_TOKEN']
 
 text_url = File.join(File.dirname(__FILE__), "/text.txt")
-file = File.open(url)
+file = File.open(text_url)
 text = file.read
 fortunes = text.split /\n|\./
 puts "#{fortunes.length} sentences loaded"
