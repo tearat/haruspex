@@ -1,5 +1,7 @@
 require 'telegram/bot'
 require 'dotenv/load'
+require 'mysql2'
+require 'colorize'
 
 dotenv_url = File.join(File.dirname(__FILE__), "/.env")
 Dotenv.load dotenv_url
@@ -9,7 +11,35 @@ text_url = File.join(File.dirname(__FILE__), "/text.txt")
 file = File.open(text_url)
 text = file.read
 fortunes = text.split /\n|\./
-puts "#{fortunes.length} sentences loaded"
+puts "#{fortunes.length} sentences loaded".green
+
+db_allowed = nil
+
+begin
+    $client = Mysql2::Client.new(
+        :host     => ENV['DB_HOST'],
+        :username => ENV['DB_USERNAME'],
+        :password => ENV['DB_PASSWORD'],
+        :database => ENV['DB_NAME'],
+    )
+    db_allowed = true
+    puts "DB allowed".green
+rescue Mysql2::Error => error
+    db_allowed = false
+    puts "DB not allowed".red
+end
+
+
+def create_or_update_user(id)
+    is_exist = $client.query("SELECT * FROM users WHERE id = #{id};").to_a
+    if is_exist.length > 0
+        count = is_exist[0]["count"]
+        $client.query("UPDATE users SET count = #{count + 1} WHERE id = #{id};")
+    else
+        $client.query("INSERT INTO users (`id`, `count`) VALUES (#{id}, 1);")
+    end
+end
+
 
 loop do
     begin
@@ -31,6 +61,7 @@ loop do
                             case request.data
                             when 'oracle'
                                 puts "Client (#{request.from.id}) asks a fortune"
+                                create_or_update_user(request.from.id)
                                 fortune = ""
                                 while fortune.length < 3 do
                                     fortunes.shuffle!
