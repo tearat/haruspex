@@ -72,7 +72,7 @@ loop do
                                 bot.api.send_message(
                                     chat_id: request.from.id,
                                     parse_mode: 'markdown',
-                                    text: "*Твоё будущее:*\n\n#{fortune}...",
+                                    text: "*Твоё будущее:*\n\n#{fortune}",
                                     reply_markup: markup
                                 )
                             end
