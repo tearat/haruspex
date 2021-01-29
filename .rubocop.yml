@@ -26,6 +26,7 @@ Style/Documentation:
   Enabled: false
 Style/RescueStandardError:
   Enabled: false
+  
 
 # Layout/EmptyLines:
 #   Enabled: false
@@ -43,6 +44,8 @@ Layout/HashAlignment:
   Enabled: false
 # Layout/ClosingParenthesisIndentation:
 #   Enabled: false
+Layout/ClosingParenthesisIndentation:
+  Enabled: false
 
 Metrics/BlockLength:
   Enabled: false
