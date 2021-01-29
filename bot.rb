@@ -4,8 +4,8 @@ require 'dotenv/load'
 require 'colorize'
 require 'optparse'
 
-require './classes/Database_class'
-require './classes/Bot_class'
+require './classes/database_class'
+require './classes/bot_class'
 
 options = {}
 OptionParser.new do |opts|
