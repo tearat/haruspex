@@ -1,0 +1,16 @@
+[Unit]
+Description=Shining bot
+
+[Service]
+Type=simple
+Restart=always
+User=root
+
+# replace to your folder
+WorkingDirectory=/home/haruspex
+
+ExecStart=/usr/bin/ruby bot.rb
+
+# replace to your log pathes
+StandardOutput=append:/home/haruspex/log/output.log
+StandardError=append:/home/haruspex/log/error.log
